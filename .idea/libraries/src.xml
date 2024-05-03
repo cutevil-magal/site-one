@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="src">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/src/opencart-3.0.3.8.zip!/" />
+      <root url="jar://$PROJECT_DIR$/src/upload.zip!/" />
+      <root url="jar://$PROJECT_DIR$/src/MultiShop Free Website Template - Free-CSS.com.zip!/" />
+      <root url="jar://$PROJECT_DIR$/src/trs-3020.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

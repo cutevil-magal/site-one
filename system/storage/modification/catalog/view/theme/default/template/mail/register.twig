@@ -1,0 +1,31 @@
+{{ text_welcome }}
+
+{% if not approval %}
+{{ text_login }}
+
+{{ login }}
+
+            
+            {{ your_login }}
+            {{ your_password }}
+            
+            
+
+{{ text_service }}
+
+{{ text_thanks }}
+{{ store }}
+{% else %}
+{{ text_approval }}
+
+{{ login }}
+
+            
+            {{ your_login }}
+            {{ your_password }}
+            
+            
+
+{{ text_thanks }}
+{{ store }}
+{% endif %}

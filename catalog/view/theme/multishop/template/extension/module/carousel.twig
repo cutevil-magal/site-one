@@ -1,0 +1,24 @@
+<!-- Vendor Start -->
+<div class="container-fluid py-5">
+<h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+		<span class="bg-secondary pr-3">{{ heading_title2 }}</span>
+	</h2>
+	<div class="row px-xl-5">
+		<div class="col">
+			<div class="owl-carousel vendor-carousel">
+				{% for banner in banners %}
+					<div class="bg-light p-4">
+						{% if banner.link %}
+							<a href="{{ banner.link }}">
+								<img src="{{ banner.image }}" alt="{{ banner.title }}">
+							</a>
+						{% else %}
+							<img src="{{ banner.image }}" alt="{{ banner.title }}">
+						{% endif %}
+					</div>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Vendor End -->

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Урок 3</title>
+	<style>
+        body {
+    margin: 0;
+    background-color: darkcyan;
+    font-family: sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.quiz-container {
+    max-width: 700px;
+    min-height: 497px;
+    background-color: #ffffff;
+    margin: 30px auto;
+    border-radius: 10px;
+    padding: 25px;
+}
+
+.question-number h3 {
+    color: darkcyan;
+    border-bottom: 1px solid #ccc;
+    margin: 0;
+    padding-bottom:  10px;
+}
+
+#question {
+    font-size: 24px;
+    color: #000000;
+    padding: 15px 0;
+    margin-bottom: 10px;
+}
+
+.options {
+    margin-bottom: 15px;
+}
+
+.options div {
+    background-color: #cccccc;
+    font-size: 16px;
+    color: #000000;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all .2s ease-in-out;
+}
+
+.options div:hover {
+    background-color: #ccccccaf;
+}
+
+.options div.correct {
+    color: #ffffff;
+    background-color: green;
+}
+
+.options div.wrong {
+    color: #ffffff;
+    background-color: red;
+}
+
+.options div.disabled {
+    pointer-events: none;
+}
+
+.button #btn-next {
+    padding: 10px 50px;
+    background-color: darkcyan;
+    font-size: 18px;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .2s ease-in-out;
+    margin-bottom: 15px;
+}
+
+.button #btn-next:hover {
+    background-color: #009687b6;
+}
+
+#answers-tracker {
+    border-top: 1px solid #cccccc;
+    padding-top: 15px;
+}
+
+#answers-tracker div{
+    height:  40px;
+    width: 40px;
+    background-color: #cccccc;
+    display: inline-block;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+#answers-tracker div.correct {
+    background-color: green;
+}
+
+#answers-tracker div.wrong {
+    background-color: red;
+}
+
+.quiz-over-modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    z-index: 10;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.quiz-over-modal.active {
+    display: flex;
+}
+
+.quiz-over-modal .content {
+    background-color: darkcyan;
+    padding: 30px;
+    border-radius: 10px;
+    flex-basis: 700px;
+    max-width: 700px;
+    color: #ffffff;
+    text-align: center;
+}
+
+.quiz-over-modal .content h1 {
+    font-size: 36px;
+    margin: 0 0 20px;
+}
+
+.quiz-over-modal .content button {
+    padding: 15px 50px;
+    border: none;
+    background-color: #ff9800;
+    transition: all .2s ease-in-out;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.quiz-over-modal .content button:hover {
+    background-color: #ff9900e5;
+}
+    </style>
+</head>
+<body>
+    <div class="quiz-over-modal">
+        <div class="content">
+            <h1>Хороший результат !</h1>
+            <p>Ты ответил на
+                <span id="correct-answer"></span> из
+                <span id="number-of-all-questions-2"></span> вопросов
+            </p>
+            <button id="btn-try-again">Попробуй снова</button>
+        </div>
+    </div>
+    <div class="quiz-container">
+        <div class="question-number">
+            <h3>
+                Вопрос <span id="number-of-question"></span> из         <span id="number-of-all-questions"></span>
+            </h3>
+        </div>
+        <div id="question"></div>
+        <div class="options">
+            <div data-id="0" class="option option1"></div>
+            <div data-id="1" class="option option2"></div>
+            <div data-id="2" class="option option3"></div>
+            <div data-id="3" class="option option4"></div>
+        </div>
+        <div class="button">
+            <button id="btn-next">Next</button>
+        </div>
+        <div id="answers-tracker">
+
+        </div>
+    </div>
+
+
+<script>
+    /*
+indexOfQuestion - номер вопроса (рандомно выбирается функцией) и от этого зависит какой вопрос сейчас отобразиться т.е может ити сначала 1 вопрос а потом сразу 5 и это не зависит от  indexOfPage
+indexOfPage - номер вопросов которые прошел/проходит пользователь (увеличичвается при загрузке вариантов ответов) и оно  все время будет увеличичваться на 1
+*/
+
+
+// варианты ответов на вопрос по отдельности
+const option1 = document.querySelector('.option1'),
+      option2 = document.querySelector('.option2'),
+      option3 = document.querySelector('.option3'),
+      option4 = document.querySelector('.option4'),
+      optionElements = document.querySelectorAll('.option');// варианты в массиве
+
+// вопросы
+const question = document.getElementById('question'), // сам вопрос
+      numberOfAllQuestions = document.getElementById('number-of-all-questions'), // номер текущего вопроса
+      numberOfQuestion = document.getElementById('number-of-question');// кол-во всех вопросов
+let indexOfQuestion,
+    indexOfPage = 0;
+
+// tracker
+const answersTracker = document.getElementById('answers-tracker') // обяртка трэкера
+
+const btnNext = document.getElementById('btn-next')
+
+let score = 0 // счет игры
+
+const correctAnswer = document.getElementById('correct-answer'),// кол-во правильных ответов в модальном окне
+      numberOfAllQuestions2 = document.getElementById('number-of-all-questions-2'), // кол-во всех опросов в модальном окне
+      btnTryAgain = document.getElementById('btn-try-again') ;// кнопка начать заново в модальном окне
+
+const questions = [
+  {
+    question : 'Какая команда перемещает персонажа вперед на один блок?',
+    options  : [
+          'идти вперед',
+          'уничтожить блок',
+          'стричь',
+          'повернуть налево',
+    ],
+    rightAnswer : 0
+
+  },
+  {
+    question : 'Что делает команда `уничтожить блок`?',
+    options  : [
+          'удаляет блок, который находится за персонажем',
+          'команда нужна для постройки стены из блоков',
+          'удаляет блок, который находится перед персонажем',
+          'сажает урожай на месте, где стоит персонаж',
+    ],
+    rightAnswer : 2
+
+  },
+  {
+    question : 'Какая команда необходима для стрижки овцы?',
+    options  : [
+          'добывать',
+          'стричь',
+          'идти вперед',
+          'повторить',
+    ],
+    rightAnswer : 1
+  },
+  {
+    question : 'Какую структуру используют для выполнения одной и той же группы команд несколько раз?',
+    options  : [
+          'условие',
+          'цикл',
+          'последовательность',
+          'функция',
+    ],
+    rightAnswer : 1
+  },
+  {
+    question : 'Какая команда нужна для постройки стены из блоков?',
+    options  : [
+          'поставить блок',
+          'построить стену',
+          'повторить',
+          'удалить блок',
+    ],
+    rightAnswer : 0
+  },
+  {
+    question : 'Какая команда позволяет персонажу изменить направление налево?',
+    options  : [
+          'повернуть направо',
+          'повернуть',
+          'повернуть налево',
+          'налево',
+    ],
+    rightAnswer : 2
+  },
+  {
+    question : 'Что делает команда `посадить урожай`?',
+    options  : [
+          'поливает урожай',
+          'сажает урожай за персонажем',
+          'повторяет прошлую команду',
+          'сажает урожай на месте, где стоит персонаж',
+    ],
+    rightAnswer : 3
+  },
+  {
+    question : 'Какая команда используется для освещения темных мест в игре?',
+    options  : [
+          'факел',
+          'повторить',
+          'поставить факел',
+          'идти вперед',
+    ],
+    rightAnswer : 2
+  },
+  {
+    question : 'Какая команда нужна для добычи ресурсов, таких как уголь или железо?',
+    options  : [
+          'добывать',
+          'удалить',
+          'повторить',
+          'найти',
+    ],
+    rightAnswer : 0
+  },
+  {
+    question : 'Как персонаж может пересечь лаву в игре?',
+    options  : [
+          'персонаж может построить мост, используя команду `поставить блок`',
+          'персонаж может построить мост, используя команду `повторить` ',
+          'персонаж может построить мост, используя команду `идти вперед`',
+          'персонаж может построить мост, используя команду `добыть лаву`',
+    ],
+    rightAnswer : 0
+  },
+]
+
+numberOfAllQuestions.innerHTML = questions.length;// выводим кол-во вопросов на странице через длинну массива
+const load = () => {// показываем вопрос и варианты ответа на странице
+  console.log('indexOfQuestion',indexOfQuestion,'right answer',questions[indexOfQuestion].rightAnswer)
+  question.innerHTML = questions[indexOfQuestion].question; // выводим на страницу вопрос
+// допилить потом цикл который будет смотреть на длину options и для каждой опции добавлять ее
+  // отображам вариаты ответов на странице
+  option1.innerHTML = questions[indexOfQuestion].options[0]
+  option2.innerHTML = questions[indexOfQuestion].options[1]
+  option3.innerHTML = questions[indexOfQuestion].options[2]
+  option4.innerHTML = questions[indexOfQuestion].options[3]
+
+  numberOfQuestion.innerHTML = indexOfPage + 1 // увеличиваем номер текущей страницы
+  indexOfPage++
+
+}
+
+let completedAnswers = [] // массив для уже заданных вопросов (чтоб вопросы не повторялись)
+const randomQuestion = () => {// выбираем рандомный вопрос который не был задан и передаем индекс вопроса в load() чтоб она показала на странице вопрос и варианты ответа к нему
+  let randomNumber = Math.floor(Math.random() * questions.length)
+  let hitDuplicate = false // переменная для проверки не выбрал ли randomNumber тот вопрос который уже был (для проверки одинаковых вопросов)
+  if(indexOfPage === questions.length) {
+    quizOver()
+  } else {
+    if(completedAnswers.length > 0){
+      completedAnswers.forEach(item => {
+          if(item == randomNumber) {
+            hitDuplicate = true
+            } })
+          if(hitDuplicate) {
+            randomQuestion()
+          }
+          else {
+              indexOfQuestion = randomNumber
+              load()
+          }
+    }
+    if(completedAnswers.length == 0) {
+      indexOfQuestion = randomNumber;
+      load()
+    }
+  }
+  completedAnswers.push(indexOfQuestion)// добавляет этот вопрос к уже заданным
+}
+
+
+const checkAnswer = el => { // проверяет ответ и добавляет классы к кружкам и к вариантам ответа
+  console.log('Number of option (by dataset.id)',el.target.dataset.id)
+  if(el.target.dataset.id == questions[indexOfQuestion].rightAnswer) {
+    el.target.classList.add('correct')
+    updateAnswerTracker('correct')
+    score++
+  }
+  else {
+    el.target.classList.add('wrong')
+    updateAnswerTracker('wrong')
+  }
+  disabledOptions()
+}
+
+
+for(option of optionElements) { // когда произведен клик по какому -то варианту то этот индекс варианта передается в функцию checkAnswer(e)
+  option.addEventListener('click', e => checkAnswer(e))
+}
+const disabledOptions = () => { // сделает так чтоб на все кнопки нельзя было нажать и если вариант ответа правильный то ему добавляет класс correct
+  optionElements.forEach(item => {
+    item.classList.add('disabled')
+    if(item.dataset.id == questions[indexOfQuestion].rightAnswer) {
+      item.classList.add('correct')
+    }
+  })
+}
+
+// удаление всех классов со всех отетов чтоб при следующем вопросе не показываля правильный и неправильный ответ с прошлого вопроса
+const enableOptions = () => { // удаляет все классы которые были добавлены в элементам
+  optionElements.forEach(item => {
+    item.classList.remove('disabled','correct','wrong')
+  })
+}
+
+const answerTracker = () => { // добавляет кружки внизу в зависимости от длинны questions
+  questions.forEach( () => {
+    const div = document.createElement('div')
+    answersTracker.appendChild(div) // добавляет на страницу div ребенком к answersTracker
+  })
+}
+
+const updateAnswerTracker = status => { // добавляет класс wrong or correct к кружку который соотвествует индексу страницы -1
+  answersTracker.children[indexOfPage -1 ].classList.add(`${status}`)
+}
+
+const validate = () => { // после нажатия next проверяет выбрал ли чел вариант ответа
+  if(!optionElements[0].classList.contains('disabled')) { // тут можно взять любой вариант
+    alert('Выберите один из вариантов ответа!')
+  }
+  else {
+    randomQuestion()
+    enableOptions()
+  }
+}
+
+const quizOver = () => { // когда конец игры то показывает конецную заставку
+  document.querySelector('.quiz-over-modal').classList.add('active')
+  correctAnswer.innerHTML = score
+  numberOfAllQuestions2.innerHTML = questions.length
+}
+
+btnTryAgain.addEventListener('click', () => window.location.reload() )
+
+btnNext.addEventListener('click' , () => {
+  validate()
+})
+
+window.addEventListener('load',() => {// прослушиваем событие load которое означает что когда загрузится страница , то только тогда запустятся функции
+  randomQuestion()
+  answerTracker()
+})
+
+
+/* архитекстура :
+window.addEventListener запускает 2 функции (  randomQuestion() & answerTracker())
+начнем с
+randomQuestion()
+load() or quizOver()
+// вывели все варианты ответа и вопрос на страницу или модальное окно
+далее
+answerTracker() который добавляет кружки на страницу
+Пока пользователь ничего не сделает больше ничего не запускается
+как только он нажал на вариант ответа (чекаем в for(option of optionElements)) то мы запускаем функцию
+checkAnswer(e)
+updateAnswerTracker(status) &  disabledOptions()
+При нпжатии кнопки next запускается
+validate()
+randomQuestion() & enableOptions()
+
+далее с модельном окне можно нажать tryAgain и перезагрузится страница или просто выйти
+*/
+</script>
+</body>
+</html>

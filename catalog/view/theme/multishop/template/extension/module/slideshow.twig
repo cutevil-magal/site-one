@@ -1,0 +1,67 @@
+<!-- Carousel Start -->
+{% if banners|length > 3 %}
+{# Если количество баннеров больше трех #}
+	{% set length = -2 %}
+	{% set class = 'col-lg-8' %}
+{% else %}
+{# Если количество баннеров три или меньше #}
+	{% set length = banners|length %}
+	{% set class = 'col-lg-12' %}
+{% endif %}
+
+<div class="container-fluid mb-3">
+	<div class="row px-xl-5">
+		<div class="{{ class }}">
+			<div id="header-carousel{{ module }}" class="carousel slide carousel-fade mb-30 mb-lg-0" data-ride="carousel">
+				<ol class="carousel-indicators">
+				{# Цикл для создания индикаторов для каждого баннера #}
+					{% for banner in banners[0:length] %}
+						<li data-target="#header-carousel{{ module }}" data-slide-to="{{ loop.index0 }}" {% if loop.index0 == 0 %} class="active" {% endif %}></li>
+					{% endfor %}
+				</ol>
+				<div class="carousel-inner">
+				{# Цикл для создания элементов карусели для каждого баннера #}
+					{% for banner in banners[0:length] %}
+						<div class="carousel-item position-relative {% if loop.index0 == 0 %}active{% endif %}" style="height: 450px;">
+							<img class="position-absolute w-100 h-100" src="{{ banner.image }}" style="object-fit: cover;">
+							<div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+								<div class="p-3" style="max-width: 700px;">
+									<h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown">{{ banner.title }}</h1>
+									
+									<p class="mx-md-5 px-5 animate__animated animate__bounceIn">{{ banner.link }}</p>
+									<!--
+									{% if banner.link %}
+										<a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp" href="{{ banner.link }}">Shop Now</a>
+									{% endif %}-->
+								</div>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+
+		{% if banners|length > 3 %}
+		{# Если количество баннеров больше трех #}
+			<div class="col-lg-4">
+			{# Колонка для дополнительных баннеров #}
+				{% for banner in banners[-2:] %}
+					<div class="product-offer mb-30" style="height: 200px;">
+						<img class="img-fluid" src="{{ banner.image }}" alt="">
+						<div class="offer-text">
+							<h6 class="text-white text-uppercase">{{ banner.title }}</h6>
+							<h3 class="text-white mb-3">{{ text_offer }}</h3>
+							{% if banner.link %}
+								<a href="{{ banner.link }}" class="btn btn-primary">Shop Now</a>
+							{% endif %}
+						</div>
+					</div>
+				{% endfor %}
+
+			</div>
+		{% endif %}
+
+
+	</div>
+</div>
+<!-- Carousel End -->

@@ -1,0 +1,85 @@
+{# Ссылка, которая при нажатии открывает модальное окно с id="modal-cart" #}
+<a href="{{ cart }}" class="btn px-0 ml-2" data-toggle="modal" data-target="#modal-cart">
+    <i class="fa fa-check btn-outline-dark"></i>
+    <span class="badge text-dark border border-dark rounded-circle cart-info" style="padding-bottom: 2px;">{{ text_items
+        }}</span>
+</a>
+
+
+<!-- Modal открытие модального окна -->
+<div class="modal fade" id="modal-cart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            {# Шапка модального окна с заголовком и кнопкой закрытия #}
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">{{ text_header }}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="in-cart">
+                    {# Проверка на наличие уроков #}
+                    {% if products %}
+                    <div class="table-esponsive">
+                        {# Таблица с уроками #}
+                        <table class="table">
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td class="text-left">
+                                        <a href="{{ product.href }}"><img src="{{ product.thumb }}" alt=""></a>
+                                    </td>
+                                    <td class="text-left">
+                                        <a href="{{ product.href }}">{{ product.name }}</a>
+                                    </td>
+                                    <td class="text-left">
+                                        <a href="{{ product.href }}">{{ product.model }}</a>
+                                    </td>
+                                    <td class="text-left">
+                                        <a href="{{ product.href }}">{{ product.manufacturer }}</a>
+                                    </td>
+
+                                    
+                                    {# изменение кол-ва  
+                                    <td class="td-qty">
+                                        <input type="number" value="{{ product.quantity }}" min="1" data-qty="{{ product.quantity }}" data-id="{{ product.product_id }}">
+                                    </td> #}
+                                    {# <td>{{ product.quantity }}</td>  #}
+                                    <td class="text-left">{{ product.price }}</td> 
+                                    <td>
+                                        <input type="hidden" name="quantity[{{ product.cart_id }}]" value="1">
+                                        <button class="btn btn-danger text-right" type="button"
+                                            onclick="cart.remove('{{ product.cart_id }}');"><i
+                                                class="fa fa-times"></i></button>
+
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    {# Если ничего нет, выводится сообщение #}
+                    <p class="text-left">{{ text_empty }}</p>
+                    {% endif %}
+                    {# Таблица с итоговой суммой #}
+                    <table class="table table-bordered">
+                        {% for total in totals %}
+                            {% if loop.index == 1 %}
+                                <tr>
+                                    <td class="text-right"><strong>{{ total.title }}</strong></td>
+                                    <td class="text-right">{{ total.text }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            {# Подвал модального окна с ссылкой на страницу дневника #}
+            <div class="modal-footer">
+                <a href="{{ cart }}" class="btn btn-secondary">{{ text_cart }}</a>
+            </div>
+        </div>
+    </div>
+</div>

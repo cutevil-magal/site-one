@@ -1,0 +1,24 @@
+{# Проверяем, есть ли более одного языка для выбора #}
+{% if languages|length > 1 %}
+	<form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-language">
+		<div class="btn-group">
+			{# Начинаем цикл для перебора всех доступных языков #}
+			{% for language in languages %}
+				{# Проверяем, совпадает ли код языка с текущим выбранным языком #}
+				{% if language.code == code %}
+					<button type="button" class="btn btn-sm btn-light dropdown-toggle" data-toggle="dropdown">{{ language.name }}</button>
+				{% endif %}
+			{% endfor %}
+			{# Создаем выпадающее меню справа от кнопки #}
+			<div class="dropdown-menu dropdown-menu-right">
+				{% for language in languages|filter(language => language.code != code) %}
+					<button name="{{ language.code }}" class=" dropdown-item language-select" type=" button">{{ language.name }}</button>
+				{% endfor %}
+			</div>
+		</div>
+		{# Скрытое поле для отправки кода выбранного языка #}
+		<input type="hidden" name="code" value=""/>
+		{# Скрытое поле для отправки URL, на который будет выполнен редирект после выбора языка #}
+		<input type="hidden" name="redirect" value="{{ redirect }}"/>
+	</form>
+{% endif %}

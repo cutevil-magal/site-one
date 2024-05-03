@@ -1,0 +1,2 @@
+admin: http://site-one/admin/
+site:     http://site-one/
