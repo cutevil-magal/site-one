@@ -55,4 +55,46 @@ Code Birdy — это полнофункциональная образоват�
 <!-- ![Админ-панель](/screenshots/admin-panel.png) -->
 
 ---
+## 🚀 Запуск проекта (через OpenServer)
 
+### Системные требования
+- OpenServer 5.3.0 или выше
+- PHP 7.4+
+- MySQL 5.7+
+- Apache web server
+
+### Установка
+
+1. **Клонирование репозитория**
+   ```bash
+   git clone https://github.com/cutevil-magal/site-one.git
+   ```
+2. **Настройка OpenServer**
+- Скопируйте папку проекта в OpenServer/domains/
+- Переименуйте папку в site-one
+- Запустите OpenServer и активируйте модули: Apache, PHP 7.4, MySQL
+3. **Настройка базы данных**
+- Откройте phpMyAdmin через панель OpenServer
+- Создайте новую базу данных с именем site-one
+- Импортируйте дамп БД (файл database/dump.sql если имеется)
+4. Конфигурация проекта
+-Файл конфигурации уже настроен для работы с OpenServer:
+
+```
+<?php
+// HTTP
+define('HTTP_SERVER', 'http://site-one/');
+define('HTTPS_SERVER', 'http://site-one/');
+
+// DIR
+define('DIR_APPLICATION', 'W:/domains/site-one/catalog/');
+define('DIR_SYSTEM', 'W:/domains/site-one/system/');
+define('DIR_IMAGE', 'W:/domains/site-one/image/');
+define('DIR_STORAGE', 'W:/domains/storage/');
+// ... остальные настройки
+define('DB_DATABASE', 'site-one');
+define('DB_PREFIX', 'oc_');
+```
+5. Проверка работы
+- Откройте в браузере: http://site-one/
+- Проект должен запуститься автоматически
